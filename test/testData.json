@@ -1,0 +1,155 @@
+[
+  {
+    "firstName": "Sherlock",
+    "lastName": "Holmes",
+    "email": "sherlock.holmes@bakerstreet.com",
+    "dateOfBirth": "1854-01-06",
+    "city": "London",
+    "state": "Greater London",
+    "country": "United Kingdom"
+  },
+  {
+    "firstName": "John",
+    "lastName": "Watson",
+    "email": "john.watson@bakerstreet.com",
+    "dateOfBirth": "1852-03-15",
+    "city": "London",
+    "state": "Greater London",
+    "country": "United Kingdom"
+  },
+  {
+    "firstName": "Alice",
+    "lastName": "Liddell",
+    "email": "alice.liddell@wonderland.com",
+    "dateOfBirth": "1865-05-04",
+    "city": "Oxford",
+    "state": "Oxfordshire",
+    "country": "United Kingdom"
+  },
+  {
+    "firstName": "Dorothy",
+    "lastName": "Gale",
+    "email": "dorothy.gale@oz.com",
+    "dateOfBirth": "1900-07-11",
+    "city": "Kansas City",
+    "state": "Kansas",
+    "country": "United States"
+  },
+  {
+    "firstName": "Ebenezer",
+    "lastName": "Scrooge",
+    "email": "ebenezer.scrooge@christmaspast.com",
+    "dateOfBirth": "1786-02-07",
+    "city": "London",
+    "state": "Greater London",
+    "country": "United Kingdom"
+  },
+  {
+    "firstName": "Oliver",
+    "lastName": "Twist",
+    "email": "oliver.twist@fagincrew.com",
+    "dateOfBirth": "1837-09-03",
+    "city": "London",
+    "state": "Greater London",
+    "country": "United Kingdom"
+  },
+  {
+    "firstName": "Dr.",
+    "lastName": "Jekyll",
+    "email": "dr.jekyll@hydeandseek.com",
+    "dateOfBirth": "1840-10-10",
+    "city": "London",
+    "state": "Greater London",
+    "country": "United Kingdom"
+  },
+  {
+    "firstName": "Mr.",
+    "lastName": "Hyde",
+    "email": "mr.hyde@jekyllandhide.com",
+    "dateOfBirth": "1840-10-10",
+    "city": "London",
+    "state": "Greater London",
+    "country": "United Kingdom"
+  },
+  {
+    "firstName": "Victor",
+    "lastName": "Frankenstein",
+    "email": "victor.frankenstein@monsters.com",
+    "dateOfBirth": "1797-12-17",
+    "city": "Geneva",
+    "state": "Geneva",
+    "country": "Switzerland"
+  },
+  {
+    "firstName": "Elizabeth",
+    "lastName": "Lavenza",
+    "email": "elizabeth.lavenza@frankenstein.com",
+    "dateOfBirth": "1801-05-20",
+    "city": "Geneva",
+    "state": "Geneva",
+    "country": "Switzerland"
+  },
+  {
+    "firstName": "Mina",
+    "lastName": "Harker",
+    "email": "mina.harker@dracula.com",
+    "dateOfBirth": "1860-11-07",
+    "city": "London",
+    "state": "Greater London",
+    "country": "United Kingdom"
+  },
+  {
+    "firstName": "Jonathan",
+    "lastName": "Harker",
+    "email": "jonathan.harker@dracula.com",
+    "dateOfBirth": "1858-09-19",
+    "city": "London",
+    "state": "Greater London",
+    "country": "United Kingdom"
+  },
+  {
+    "firstName": "Count",
+    "lastName": "Dracula",
+    "email": "count.dracula@transylvania.com",
+    "dateOfBirth": "1431-10-26",
+    "city": "Sighișoara",
+    "state": "Transylvania",
+    "country": "Romania"
+  },
+  {
+    "firstName": "Robin",
+    "lastName": "Hood",
+    "email": "robin.hood@sherwood.com",
+    "dateOfBirth": "1160-06-01",
+    "city": "Nottingham",
+    "state": "Nottinghamshire",
+    "country": "United Kingdom"
+  },
+  {
+    "firstName": "Maid",
+    "lastName": "Marian",
+    "email": "maid.marian@sherwood.com",
+    "dateOfBirth": "1162-08-25",
+    "city": "Nottingham",
+    "state": "Nottinghamshire",
+    "country": "United Kingdom"
+  },
+  {
+    "firstName": "Hercule",
+    "lastName": "Poirot",
+    "email": "hercule.poirot@belgiumdetectives.com",
+    "dateOfBirth": "1854-04-01",
+    "city": "Brussels",
+    "state": "Brussels",
+    "country": "Belgium"
+  },
+  {
+    "firstName": "Tarzan",
+    "lastName": "Clayton",
+    "email": "tarzan.clayton@junglelife.com",
+    "dateOfBirth": "1890-09-15",
+    "city": "Greystoke",
+    "state": "West Midlands",
+    "country": "United Kingdom"
+  }
+]

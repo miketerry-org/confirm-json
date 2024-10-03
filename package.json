@@ -1,0 +1,23 @@
+{
+  "name": "json-rules",
+  "version": "1.0.0",
+  "description": "Implements rules for validating JSON objects",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "dev": "NODE_ENV=dev node --watch index.js",
+    "test": "NODE_ENV=TEST node --watch --test"
+  },
+  "keywords": [
+    "jsson",
+    "rules",
+    "schema",
+    "valid",
+    "validate",
+    "validator"
+  ],
+  "author": "miketerry.org",
+  "license": "MIT"
+}
