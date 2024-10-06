@@ -5,7 +5,7 @@ const assert = require("node:assert");
 const { test } = require("node:test");
 const { add, find, remove, update } = require("../lib/enums");
 
-test("add", () => {
+test("enums.add", () => {
   // Add a new enum
   add("Colors", ["Red", "Green", "Blue"]);
   assert.deepStrictEqual(find("Colors"), {
@@ -21,7 +21,7 @@ test("add", () => {
   });
 });
 
-test("find", () => {
+test("enums.find", () => {
   add("Shapes", ["Circle", "Square"]);
   const shapeEnum = find("Shapes");
   assert.deepStrictEqual(shapeEnum, {
@@ -33,7 +33,7 @@ test("find", () => {
   assert.strictEqual(missingEnum, undefined);
 });
 
-test("remove", () => {
+test("enums.remove", () => {
   add("Fruits", ["Apple", "Banana"]);
   assert.deepStrictEqual(find("Fruits"), {
     name: "Fruits",
@@ -50,7 +50,7 @@ test("remove", () => {
   });
 });
 
-test("update", () => {
+test("enums.update", () => {
   add("Vehicles", ["Car", "Bike"]);
   assert.deepStrictEqual(find("Vehicles"), {
     name: "Vehicles",

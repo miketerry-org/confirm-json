@@ -24,4 +24,3 @@
 - rules.register(title, rules)
 - let errors = rules.validate(title, body)
 - rules.middleware(title) => (req, res, next) => {let errors = rules.validate(title, req.body)}
--
