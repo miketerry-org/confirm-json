@@ -2,7 +2,7 @@
 
 // load all necessary modules
 const assert = require("node:assert");
-const { describe, it } = require("node:test");
+const { test } = require("node:test");
 const {
   authRoleParser,
   booleanParser,
@@ -24,52 +24,47 @@ process.env.PASSWORD_MIN_LOWER = "1";
 process.env.PASSWORD_MIN_DIGIT = "1";
 process.env.PASSWORD_MIN_SYMBOL = "1";
 
-describe("authRoleParser", () => {
+test("authRoleParser", () => {
   assert.strictEqual(authRoleParser("Admin"), "Admin");
   assert.strictEqual(authRoleParser("InvalidRole"), null);
 });
 
-describe("booleanParser", () => {
+test("booleanParser", () => {
   assert.strictEqual(booleanParser(true), true);
   assert.strictEqual(booleanParser(false), false);
   assert.strictEqual(booleanParser("true"), true);
   assert.strictEqual(booleanParser("notabool"), null);
 });
 
-describe("dateParser", () => {
+test("dateParser", () => {
   const date = dateParser("2022-10-04T00:00:00Z");
   assert.ok(date instanceof Date);
   assert.strictEqual(date.toISOString(), "2022-10-04T00:00:00.000Z");
   assert.strictEqual(dateParser("invalid date"), null);
 });
 
-describe("emailParser", () => {
+test("emailParser", () => {
   assert.strictEqual(emailParser(" TEST@Example.com "), "test@example.com");
   assert.strictEqual(emailParser("invalid-email"), null);
 });
 
-describe("enumParser", () => {
-  assert.strictEqual(
-    enumParser("Admin", ["Guest", "Subscriber", "Admin"]),
-    "Admin"
-  );
-  assert.strictEqual(
-    enumParser("Invalid", ["Guest", "Subscriber", "Admin"]),
-    null
-  );
+test("enumParser", () => {
+  assert.strictEqual(enumParser("authRole")("admin"), "Admin");
+
+  assert.strictEqual(enumParser("authRole")("invalid"), null);
 });
 
-describe("floatParser", () => {
+test("floatParser", () => {
   assert.strictEqual(floatParser("3.14"), 3.14);
   assert.strictEqual(floatParser("invalid"), null);
 });
 
-describe("integerParser", () => {
+test("integerParser", () => {
   assert.strictEqual(integerParser("42"), 42);
   assert.strictEqual(integerParser("invalid"), null);
 });
 
-describe("passwordParser", () => {
+test("passwordParser", () => {
   assert.strictEqual(passwordParser("A1@password"), "A1@password");
   assert.strictEqual(passwordParser("Short1!"), null);
   assert.strictEqual(passwordParser("lowercase1!"), null);
@@ -78,11 +73,11 @@ describe("passwordParser", () => {
   assert.strictEqual(passwordParser("Uppercase1"), null);
 });
 
-describe("stringParser", () => {
+test("stringParser", () => {
   assert.strictEqual(stringParser("Hello, World!"), "Hello, World!");
 });
 
-describe("timeParser", () => {
+test("timeParser", () => {
   assert.strictEqual(timeParser("12:30 PM"), "12:30");
   assert.strictEqual(timeParser("invalid time"), null);
   assert.strictEqual(timeParser("1:30:30 PM"), "13:30:30");

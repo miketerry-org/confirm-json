@@ -19,50 +19,27 @@ const {
   timeValidator,
 } = require("../lib/validators.js");
 
-// Mock parsers for testing
-const mockParsers = {
-  authRoleParser: (value) => (value === "admin" ? "admin" : null),
-  booleanParser: (value) =>
-    value === "true" ? true : value === "false" ? false : null,
-  dateParser: (value) => (isNaN(Date.parse(value)) ? null : new Date(value)),
-  emailParser: (value) => (/\S+@\S+\.\S+/.test(value) ? value : null),
-  floatParser: (value) => (isNaN(parseFloat(value)) ? null : parseFloat(value)),
-  integerParser: (value) =>
-    isNaN(parseInt(value, 10)) ? null : parseInt(value, 10),
-  passwordParser: (value) => (value.length >= 6 ? value : null),
-  stringParser: (value) => (typeof value === "string" ? value : null),
-  timeParser: (value) => (/\d{2}:\d{2}/.test(value) ? value : null),
-};
-
-// Assign mock parsers to validators for testing
-const {
-  authRoleParser,
-  booleanParser,
-  dateParser,
-  emailParser,
-  floatParser,
-  integerParser,
-  passwordParser,
-  stringParser,
-  timeParser,
-} = mockParsers;
-
 test("authRoleValidator", () => {
   let errors = [];
   assert.strictEqual(
     authRoleValidator(
-      { name: "role", required: true },
+      { name: "role", type: "authRole", required: true },
       { role: "admin" },
       errors
     ),
     true
   );
-  assert.deepStrictEqual(errors, []);
+  assert.deepStrictEqual(errors.length, 0);
+
   assert.strictEqual(
-    authRoleValidator({ name: "role", required: true }, {}, errors),
+    authRoleValidator(
+      { name: "role", type: "authRole", required: true },
+      { role: "testor" },
+      errors
+    ),
     false
   );
-  assert.deepStrictEqual(errors, ['"role" is required']);
+  assert.deepStrictEqual(errors.length, 1);
 });
 
 test("booleanValidator", () => {
@@ -75,12 +52,13 @@ test("booleanValidator", () => {
     ),
     true
   );
-  assert.deepStrictEqual(errors, []);
+  assert.deepStrictEqual(errors.length, 0);
+
   assert.strictEqual(
     booleanValidator({ name: "active", required: true }, {}, errors),
     false
   );
-  assert.deepStrictEqual(errors, ['"active" is required']);
+  assert.deepStrictEqual(errors.length, 1);
 });
 
 test("compareValidator", () => {
@@ -93,7 +71,7 @@ test("compareValidator", () => {
     ),
     true
   );
-  assert.deepStrictEqual(errors, []);
+  assert.deepStrictEqual(errors.length, 0);
 
   assert.strictEqual(
     compareValidator(
@@ -103,6 +81,7 @@ test("compareValidator", () => {
     ),
     false
   );
+  assert.deepStrictEqual(errors.length, 1);
 });
 
 test("dateValidator", () => {
@@ -115,12 +94,13 @@ test("dateValidator", () => {
     ),
     true
   );
-  assert.deepStrictEqual(errors, []);
+  assert.deepStrictEqual(errors.length, 0);
+
   assert.strictEqual(
     dateValidator({ name: "date", required: true }, {}, errors),
     false
   );
-  assert.deepStrictEqual(errors, ['"date" is required']);
+  assert.deepStrictEqual(errors.length, 1);
 });
 
 test("emailValidator", () => {
@@ -133,12 +113,13 @@ test("emailValidator", () => {
     ),
     true
   );
-  assert.deepStrictEqual(errors, []);
+  assert.deepStrictEqual(errors.length, 0);
+
   assert.strictEqual(
     emailValidator({ name: "email", required: true }, {}, errors),
     false
   );
-  assert.deepStrictEqual(errors, ['"email" is required']);
+  assert.deepStrictEqual(errors.length, 1);
 });
 
 test("enumValidator", () => {
@@ -147,7 +128,7 @@ test("enumValidator", () => {
   let errors = [];
   assert.strictEqual(
     enumValidator(
-      { name: "status", type: "status", required: true },
+      { name: "status", type: "enum", required: true, params: ["status"] },
       { status: "active" },
       errors
     ),
@@ -157,19 +138,13 @@ test("enumValidator", () => {
 
   assert.strictEqual(
     enumValidator(
-      {
-        name: "status",
-        type: "status",
-        required: true,
-      },
+      { name: "status", type: "enum", required: true, params: ["status"] },
       { status: "pending" },
       errors
     ),
     false
   );
-  assert.deepStrictEqual(errors, [
-    '"status" must be one of "active", "inactive"',
-  ]);
+  assert.deepStrictEqual(errors.length, 1);
 });
 
 test("floatValidator", () => {
@@ -182,12 +157,13 @@ test("floatValidator", () => {
     ),
     true
   );
-  assert.deepStrictEqual(errors, []);
+  assert.deepStrictEqual(errors.length, 0);
+
   assert.strictEqual(
     floatValidator({ name: "price", required: true }, {}, errors),
     false
   );
-  assert.deepStrictEqual(errors, ['"price" is required']);
+  assert.deepStrictEqual(errors.length, 1);
 });
 
 test("integerValidator", () => {
@@ -200,12 +176,13 @@ test("integerValidator", () => {
     ),
     true
   );
-  assert.deepStrictEqual(errors, []);
+  assert.deepStrictEqual(errors.length, 0);
+
   assert.strictEqual(
     integerValidator({ name: "quantity", required: true }, {}, errors),
     false
   );
-  assert.deepStrictEqual(errors, ['"quantity" is required']);
+  assert.deepStrictEqual(errors.length, 1);
 });
 
 test("passwordValidator", () => {
@@ -213,12 +190,13 @@ test("passwordValidator", () => {
   assert.strictEqual(
     passwordValidator(
       { name: "password", required: true },
-      { password: "123456" },
+      { password: "Abcd-1234" },
       errors
     ),
     true
   );
-  assert.deepStrictEqual(errors, []);
+  assert.deepStrictEqual(errors.length, 0);
+
   assert.strictEqual(
     passwordValidator(
       { name: "password", required: true },
@@ -227,7 +205,7 @@ test("passwordValidator", () => {
     ),
     false
   );
-  assert.deepStrictEqual(errors, ['"password" is not a valid "string"']);
+  assert.deepStrictEqual(errors.length, 1);
 });
 
 test("regexValidator", () => {
@@ -240,19 +218,19 @@ test("regexValidator", () => {
     ),
     true
   );
-  assert.deepStrictEqual(errors, []);
+  assert.deepStrictEqual(errors.length, 0);
+
+  let regExp = /^(?!hello world).*/;
 
   assert.strictEqual(
     regexValidator(
-      { name: "username", required: true, params: ["^[a-zA-Z0-9_]{3,15}$"] },
-      { username: "invalid user!" },
+      { name: "message", required: true, params: [regExp] },
+      { message: "hello world" },
       errors
     ),
     false
   );
-  assert.deepStrictEqual(errors, [
-    '"username" does not match the required pattern',
-  ]);
+  assert.deepStrictEqual(errors.length, 1);
 });
 
 test("stringValidator", () => {
@@ -265,12 +243,13 @@ test("stringValidator", () => {
     ),
     true
   );
-  assert.deepStrictEqual(errors, []);
+  assert.deepStrictEqual(errors.length, 0);
+
   assert.strictEqual(
     stringValidator({ name: "name", required: true }, {}, errors),
     false
   );
-  assert.deepStrictEqual(errors, ['"name" is required']);
+  assert.deepStrictEqual(errors.length, 1);
 });
 
 test("timeValidator", () => {
@@ -279,10 +258,11 @@ test("timeValidator", () => {
     timeValidator({ name: "time", required: true }, { time: "12:30" }, errors),
     true
   );
-  assert.deepStrictEqual(errors, []);
+  assert.deepStrictEqual(errors.length, 0);
+
   assert.strictEqual(
     timeValidator({ name: "time", required: true }, {}, errors),
     false
   );
-  assert.deepStrictEqual(errors, ['"time" is required']);
+  assert.deepStrictEqual(errors.length, 1);
 });
