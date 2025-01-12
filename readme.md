@@ -1,10 +1,10 @@
-# json-rules
+# confirm-jsonconfirm-json
 
-<a name="module_json-rules"></a>
+<a name="module_confirm-jsonconfirm-json"></a>
 
-## json-rules
+## confirm-jsonconfirm-json
 
-The `json-rules` package is designed to be used with Express and other backend frameworks
+The `confirm-jsonconfirm-json` package is designed to be used with Express and other backend frameworks
 to validate JSON objects sent from the browser. It ensures that incoming data meets all
 specified requirements before it is saved to the database. By utilizing this package,
 developers can enforce data integrity, reduce errors, and enhance the security of their
@@ -12,7 +12,7 @@ applications by preventing invalid or malicious data from being processed.
 
 Developers define validation rules using `rules.add` to create one or more sets of rules.
 When declaring an `app.post` or `app.put` route, developers can utilize the middleware
-function provided by `json-rules` to validate incoming requests. This middleware will
+function provided by `confirm-jsonconfirm-json` to validate incoming requests. This middleware will
 attach a `req.errors` property to the request object, allowing route handlers to check
 for validation success and report any errors back to the user.
 
@@ -64,7 +64,7 @@ as needed.
 **Example**
 
 ```js
-const jsonRules = require("json-rules");
+const jsonRules = require("confirm-jsonconfirm-json");
 
 // Define rules
 const rules = jsonRules.rules();
