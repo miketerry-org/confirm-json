@@ -3,7 +3,7 @@
   "version": "0.6.0",
   "description": "Implements rules for validating JSON objects",
   "main": "index.js",
-  "private": true,
+  "private": false,
   "directories": {
     "lib": "lib",
     "test": "test"
