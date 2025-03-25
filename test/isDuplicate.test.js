@@ -1,3 +1,5 @@
+!!ERROR, this needs to be rewritten
+
 // check_isDuplicate.test.js:
 
 "use strict";

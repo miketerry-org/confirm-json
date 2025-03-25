@@ -91,14 +91,14 @@ function firstCase(str) {
 }
 
 /**
- * Class to check the validity of various data types and values.
+ * Class to confirm the validity of various data types and values.
  */
-class Check {
+class Confirm {
   #data = [];
   #errors = [];
 
   /**
-   * Constructor for Check class.
+   * Constructor for Confirm class.
    * @param {Object} data - The data to be validated.
    */
   constructor(data) {
@@ -110,7 +110,7 @@ class Check {
    * @param {string} name - The name of the field.
    * @param {boolean} defaultValue - The default value of the field.
    * @param {boolean} required - Whether the field is required.
-   * @returns {Check} - The Check instance for method chaining.
+   * @returns {confirm} - The confirm instance for method chaining.
    */
   isBoolean(name, defaultValue, required = true) {
     // first try to get value
@@ -173,7 +173,7 @@ class Check {
    * @param {string} name - The name of the field.
    * @param {Date} defaultValue - The default value of the field.
    * @param {boolean} required - Whether the field is required.
-   * @returns {Check} - The Check instance for method chaining.
+   * @returns {confirm} - The Confirm instance for method chaining.
    */
   isDate(name, defaultValue, required = true) {
     // first try to get value
@@ -204,7 +204,7 @@ class Check {
    * @param {string} name - The name of the field.
    * @param {string} duplicateName - The name of the duplicate field to compare.
    * @param {boolean} required - Whether the field is required.
-   * @returns {Check} - The Check instance for method chaining.
+   * @returns {confirm} - The Confirm instance for method chaining.
    */
   isDuplicate(name, duplicateName, required = true) {
     // First try to get both values
@@ -213,7 +213,7 @@ class Check {
 
     // Exit if either value is undefined or null (handling both cases)
     if (value1 == null || value2 == null) {
-      // `value == null` checks both `null` and `undefined`
+      // `value == null` confirms both `null` and `undefined`
       this.#errors.push(
         `Both "${name}" and "${duplicateName}" values are required`
       );
@@ -248,13 +248,13 @@ class Check {
    * @param {string} name - The name of the field.
    * @param {string} defaultValue - The default value of the field.
    * @param {boolean} required - Whether the field is required.
-   * @returns {Check} - The Check instance for method chaining.
+   * @returns {confirm} - the Confirm instance for method chaining.
    */
   isEmail(name, defaultValue, required = true) {
     let value = this._getValue(name, defaultValue, required);
 
     // if value defined and it is a string
-    if (value && this._checkType(name, value, "string")) {
+    if (value && this._confirmType(name, value, "string")) {
       // use regular expression to determine if email is valid
       const regex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
       if (!regex.test(value)) {
@@ -272,14 +272,14 @@ class Check {
    * @param {string} defaultValue - The default value of the field.
    * @param {Array<string>} values - The valid enumeration values.
    * @param {boolean} required - Whether the field is required.
-   * @returns {Check} - The Check instance for method chaining.
+   * @returns {Confirm} - the Confirm instance for method chaining.
    */
   isEnum(name, defaultValue, values, required = true) {
     //get the value or default if necessary
     let value = this._getValue(name, defaultValue, required);
 
     // if value defined and it is a string
-    if (value && this._checkType(name, value, "string")) {
+    if (value && this._confirmType(name, value, "string")) {
       // if value is not valid enumeration
       if (!values.find((item) => item.toLowerCase() === value.toLowerCase())) {
         this.#errors.push(`${name} is "${value}" which is not a valid value`);
@@ -297,7 +297,7 @@ class Check {
    * @param {number} minFloat - The minimum allowed float value.
    * @param {number} maxFloat - The maximum allowed float value.
    * @param {boolean} required - Whether the field is required.
-   * @returns {Check} - The Check instance for method chaining.
+   * @returns {Confirm} - the Confirm instance for method chaining.
    */
   isFloat(name, defaultValue, minFloat, maxFloat, required = true) {
     // get value or default if one is specified
@@ -321,7 +321,7 @@ class Check {
     }
 
     // if value is defined an it is now a number
-    if (value && this._checkType(name, value, "number")) {
+    if (value && this._confirmType(name, value, "number")) {
       // ensure value is within min and ma values
       if (minFloat && minFloat > value) {
         this.#errors.push(`"${name}" cannot be less than "${minFloat}"`);
@@ -341,7 +341,7 @@ class Check {
    * @param {number} minInteger - The minimum allowed integer value.
    * @param {number} maxInteger - The maximum allowed integer value.
    * @param {boolean} required - Whether the field is required.
-   * @returns {Check} - The Check instance for method chaining.
+   * @returns {Confirm} - the Confirm instance for method chaining.
    */
   isInteger(name, defaultValue, minInteger, maxInteger, required = true) {
     // get the value or default if one is specified
@@ -365,7 +365,7 @@ class Check {
     }
 
     // if a number then ensure it is between min and max
-    if (value && this._checkType(name, value, "number")) {
+    if (value && this._confirmType(name, value, "number")) {
       if (minInteger && minInteger > value) {
         this.#errors.push(`"${name}" cannot be less than "${minInteger}"`);
       } else if (maxInteger && maxInteger < value) {
@@ -382,7 +382,7 @@ class Check {
    * @param {string} name - The name of the field.
    * @param {Object} config - Configuration for password validation.
    * @param {boolean} required - Whether the field is required.
-   * @returns {Check} - The Check instance for method chaining.
+   * @returns {Confirm} - the Confirm instance for method chaining.
    */
   isPassword(name, config = {}, required = true) {
     // get value
@@ -392,7 +392,7 @@ class Check {
     let ok = false;
 
     // if value found and it is a string
-    if (value && this._checkType(name, value, "string")) {
+    if (value && this._confirmType(name, value, "string")) {
       // merge the default password configuration with those passed to method
       const mergedConfig = { ...defaultPasswordConfig, ...config };
 
@@ -424,14 +424,14 @@ class Check {
    * @param {string} defaultValue - The default value of the field.
    * @param {RegExp} regEx - The regular expression to test against.
    * @param {boolean} required - Whether the field is required.
-   * @returns {Check} - The Check instance for method chaining.
+   * @returns {Confirm} - the Confirm instance for method chaining.
    */
   isRegEx(name, defaultValue, regEx, required = true) {
     // get the value or default if no value present in data
     //  value = this._getValue(name, defaultValue, required);
 
     // if value exists and it is a string value
-    if (value && this._checkType(name, value, "string")) {
+    if (value && this._confirmType(name, value, "string")) {
       // if value does not match regular expression
       if (!regEx.test(value)) {
         this.#errors.push(`"${name}" is "${value}" which is not a valid value`);
@@ -450,7 +450,7 @@ class Check {
    * @param {number} maxLength - The maximum length of the string.
    * @param {string} capitalization - The capitalization rule (e.g., "upper", "lower", "title", "first").
    * @param {boolean} required - Whether the field is required.
-   * @returns {Check} - The Check instance for method chaining.
+   * @returns {Confirm} - the Confirm instance for method chaining.
    */
   isString(
     name,
@@ -464,7 +464,7 @@ class Check {
     let value = this._getValue(name, defaultValue, required);
 
     // if value present and value is a strring
-    if (value && this._checkType(name, value, "string")) {
+    if (value && this._confirmType(name, value, "string")) {
       // ensure length of value is within min and max lengths
       let len = value.length;
       if (minLength && minLength > len) {
@@ -508,11 +508,11 @@ class Check {
   /**
    * Checks if the data type of the value is as expected.
    * @param {string} name - The name of the field.
-   * @param {*} value - The value to check.
+   * @param {*} value - The value to confirm.
    * @param {string} expectedType - The expected type.
    * @returns {boolean} - True if the types match, false otherwise.
    */
-  _checkType(name, value, expectedType) {
+  _confirmType(name, value, expectedType) {
     let actualType = typeof value;
     let same = expectedType === actualType;
     if (!same) {
@@ -550,5 +550,5 @@ class Check {
   }
 }
 
-// export the Check class
-module.exports = Check;
+// export the Confirm class
+module.exports = Confirm;
