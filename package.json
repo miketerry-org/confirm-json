@@ -1,28 +1,31 @@
 {
   "name": "confirm-json",
-  "version": "0.6.1",
-  "description": "Implements rules for validating JSON objects",
+  "version": "1.0.2",
+  "description": "Implements functions to validate JSON objects",
   "main": "index.js",
   "directories": {
-    "lib": "lib",
     "test": "test"
   },
   "scripts": {
     "dev": "NODE_ENV=dev node --watch index.js",
-    "test": "NODE_ENV=TEST node --watch --test"
+    "test": "jest --watch"
   },
   "keywords": [
-    "examiner",
-    "jsson",
-    "rules",
-    "schema",
-    "valid",
-    "validate",
-    "validator"
+    "JSON",
+    "javascript",
+    "objects",
+    "check",
+    "confirm",
+    "verify",
+    "validate"
   ],
   "author": "miketerry.org",
   "license": "MIT",
   "devDependencies": {
+    "jest": "^29.7.0",
     "jsdoc": "^4.0.3"
+  },
+  "dependencies": {
+    "moredate": "^0.0.4"
   }
 }
