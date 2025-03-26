@@ -1,11 +1,8 @@
 {
   "name": "confirm-json",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Implements functions to validate JSON objects",
   "main": "index.js",
-  "directories": {
-    "test": "test"
-  },
   "scripts": {
     "dev": "NODE_ENV=dev node --watch index.js",
     "test": "jest --watch"
@@ -19,13 +16,16 @@
     "verify",
     "validate"
   ],
-  "author": "miketerry.org",
+  "directories": {
+    "test": "test"
+  },
+  "author": "support@miketerry.org",
   "license": "MIT",
+  "dependencies": {
+    "moredate": "^0.0.4"
+  },
   "devDependencies": {
     "jest": "^29.7.0",
     "jsdoc": "^4.0.3"
-  },
-  "dependencies": {
-    "moredate": "^0.0.4"
   }
 }

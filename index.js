@@ -4,91 +4,8 @@
 
 // load all necessary modules
 const MoreDate = require("moreDate");
-
-// Default configuration values for password validation
-const defaultPasswordConfig = {
-  minLength: 12,
-  maxLength: 100,
-  minUpper: 1,
-  minLower: 1,
-  minDigits: 1,
-  minSymbols: 1,
-};
-
-// function to count occurances of character types
-function countCharacters(value) {
-  // Initialize counters for each category
-  let result = {
-    upper: 0,
-    lower: 0,
-    digits: 0,
-    symbols: 0,
-  };
-
-  // Loop through each character in the string
-  for (let char of value) {
-    if (/[A-Z]/.test(char)) {
-      // If the character is an uppercase letter
-      result.upper++;
-    } else if (/[a-z]/.test(char)) {
-      // If the character is a lowercase letter
-      result.lower++;
-    } else if (/\d/.test(char)) {
-      // If the character is a digit
-      result.digits++;
-    } else if (/[^A-Za-z0-9]/.test(char)) {
-      // If the character is not a letter or a digit (i.e., a symbol)
-      result.symbols++;
-    }
-  }
-
-  return result;
-}
-
-/**
- * Returns a regular expression to validate passwords based on configuration values.
- * @param {Object} config - Configuration object for password validation.
- * @returns {RegExp} - The regex pattern for validating the password.
- */
-function getPasswordRegEx(config) {
-  const minLength = config.minLength;
-  const maxLength = config.maxLength;
-  const minUppercase = config.minUppercase;
-  const minLowercase = config.minLowercase;
-  const minDigits = config.minDigits;
-  const minSymbols = config.minSymbols;
-
-  const uppercase = `(?=.*[A-Z]{${minUppercase},})`; // At least 'minUppercase' uppercase letters
-  const lowercase = `(?=.*[a-z]{${minLowercase},})`; // At least 'minLowercase' lowercase letters
-  const digits = `(?=.*\d{${minDigits},})`; // At least 'minDigits' digits
-  const symbols = `(?=.*[!@#$%^&*()_+=[\\]{};':"\\\\|,.<>/?-]{${minSymbols},})`; // At least 'minSymbols' special characters
-
-  const regExPattern = `^${uppercase}${lowercase}${digits}${symbols}.{${minLength},${maxLength}}$`;
-
-  return new RegExp(regExPattern);
-}
-
-/**
- * Capitalizes the first letter of each word in the string and makes the rest lowercase.
- * @param {string} str - The string to convert to title case.
- * @returns {string} - The string with each word's first letter capitalized.
- */
-function titleCase(str) {
-  return str
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(" ");
-}
-
-/**
- * Capitalizes the first letter of the string and makes the rest lowercase.
- * @param {string} str - The string to convert to first case.
- * @returns {string} - The string with the first letter capitalized and the rest in lowercase.
- */
-function firstCase(str) {
-  if (str.length === 0) return str;
-  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
-}
+const { config, countCharacters } = require("./lib/passwords");
+const { titleCase, firstCase } = require("./lib/strings");
 
 /**
  * Class to confirm the validity of various data types and values.
@@ -222,10 +139,10 @@ class Confirm {
 
     // Check if both values are of type Date and compare them
     if (value1 instanceof Date && value2 instanceof Date) {
-      if (value1.getTime() !== value2.getTime()) {
+      if (!MoreDate.sameDate(value1, value2)) {
         this.#errors.push(`"${name}" and "${duplicateName}" do not match`);
       }
-      return this; // Allow for method chaining
+      return this;
     }
 
     // Check if both values have the same primitive data type
@@ -322,7 +239,7 @@ class Confirm {
 
     // if value is defined an it is now a number
     if (value && this._confirmType(name, value, "number")) {
-      // ensure value is within min and ma values
+      // ensure value is within min and max values
       if (minFloat && minFloat > value) {
         this.#errors.push(`"${name}" cannot be less than "${minFloat}"`);
       } else if (maxFloat && maxFloat < value) {
