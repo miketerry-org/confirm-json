@@ -414,6 +414,17 @@ class Confirm {
     return this;
   }
 
+  isTime(
+    name,
+    defaultValue,
+    minTime = undefined,
+    maxTime = undefined,
+    required = true
+  ) {
+    this.#errors.push(`"isTimestamp" is not implemented! ({${name})`);
+    return this;
+  }
+
   /**
    * Returns an array of error messages.
    * @returns {Array<string>} - The list of error messages.
