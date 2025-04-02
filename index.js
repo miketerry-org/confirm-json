@@ -22,6 +22,36 @@ class Confirm {
     this.#data = data;
   }
 
+  isArray(name, defaultValue, minItems = 1, maxItems = 255, required = true) {
+    // get the value or default if no value provided
+    let value = this._getValue(name, defaultValue, required);
+
+    // if value exists and it is an array
+    if (value && Array.isArray(value)) {
+      // Check if the number of items in the array is within the min and max bounds
+      const length = value.length;
+
+      // Check the minimum length
+      if (minItems && length < minItems) {
+        this.#errors.push(`"${name}" must have at least ${minItems} items`);
+      }
+
+      // Check the maximum length
+      if (maxItems && length > maxItems) {
+        this.#errors.push(`"${name}" must have no more than ${maxItems} items`);
+      }
+
+      // If the array is valid, store it in the data object
+      this.#data[name] = value;
+    } else if (value !== undefined) {
+      // If the value is not an array but is defined, push an error
+      this.#errors.push(`"${name}" is "${value}" which is not a valid array`);
+    }
+
+    // allow for method chaining
+    return this;
+  }
+
   /**
    * Verifies that the value is a boolean.
    * @param {string} name - The name of the field.
