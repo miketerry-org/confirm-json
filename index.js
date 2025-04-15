@@ -374,8 +374,10 @@ class Confirm {
    * @returns {Confirm} - the Confirm instance for method chaining.
    */
   isRegEx(name, defaultValue, regEx, required = true) {
+    console.debug("isRegEx", name);
     // get the value or default if no value present in data
-    //  value = this._getValue(name, defaultValue, required);
+    let value = this._getValue(name, defaultValue, required);
+    console.debug("isRegEx", value);
 
     // if value exists and it is a string value
     if (value && this._confirmType(name, value, "string")) {
