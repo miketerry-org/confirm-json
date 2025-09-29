@@ -1,173 +1,160 @@
-// index.js:
+// index.js: cconfirm-json
 
 "use strict";
 
 // load all necessary modules
 const MoreDate = require("moreDate");
-const { config, countCharacters } = require("./lib/passwords");
+const {
+  config: defaultPasswordConfig,
+  countCharacters,
+} = require("./lib/passwords");
 const { titleCase, firstCase } = require("./lib/strings");
 
 /**
- * Class to confirm the validity of various data types and values.
+ * Class to confirm/validate various data types and values in a JSON object.
+ * Supports chainable validation methods, type coercion, normalization, and error collection.
  */
 class Confirm {
+  /** @type {Object.<string, any>} */
   #data = [];
+
+  /** @type {string[]} */
   #errors = [];
 
   /**
-   * Constructor for Confirm class.
-   * @param {Object} data - The data to be validated.
+   * Creates a Confirm instance for the given data object.
+   * The data object may be mutated (e.g. default values, normalized values).
+   *
+   * @param {Object.<string, any>} data - An object whose fields will be validated.
    */
   constructor(data) {
     this.#data = data;
   }
 
+  /**
+   * Validate that the field is an array and within optional bounds.
+   *
+   * @param {string} name - The property name in the data object.
+   * @param {any} [defaultValue] - If field is missing or undefined, this default is used.
+   * @param {number} [minItems=1] - Minimum number of elements in the array.
+   * @param {number} [maxItems=255] - Maximum number of elements.
+   * @param {boolean} [required=true] - Whether the field is required.
+   * @returns {Confirm} - Returns this instance for chaining.
+   */
   isArray(name, defaultValue, minItems = 1, maxItems = 255, required = true) {
-    // get the value or default if no value provided
     let value = this._getValue(name, defaultValue, required);
 
-    // if value exists and it is an array
     if (value && Array.isArray(value)) {
-      // Check if the number of items in the array is within the min and max bounds
       const length = value.length;
-
-      // Check the minimum length
       if (minItems && length < minItems) {
         this.#errors.push(`"${name}" must have at least ${minItems} items`);
       }
-
-      // Check the maximum length
       if (maxItems && length > maxItems) {
         this.#errors.push(`"${name}" must have no more than ${maxItems} items`);
       }
-
-      // If the array is valid, store it in the data object
       this.#data[name] = value;
     } else if (value !== undefined) {
-      // If the value is not an array but is defined, push an error
       this.#errors.push(`"${name}" is "${value}" which is not a valid array`);
     }
 
-    // allow for method chaining
     return this;
   }
 
   /**
-   * Verifies that the value is a boolean.
-   * @param {string} name - The name of the field.
-   * @param {boolean} defaultValue - The default value of the field.
-   * @param {boolean} required - Whether the field is required.
-   * @returns {confirm} - The confirm instance for method chaining.
+   * Validate or coerce a field to boolean.
+   * Accepts boolean, numeric (1 or 0), or string values ("true", "yes", "no", etc.).
+   *
+   * @param {string} name - Property name to validate.
+   * @param {boolean} [defaultValue] - Default boolean value if the field is missing.
+   * @param {boolean} [required=true] - Whether the field must exist.
+   * @returns {Confirm}
    */
   isBoolean(name, defaultValue, required = true) {
-    // first try to get value
     let value = this._getValue(name, defaultValue, required);
 
-    // if no value and no default provided
     if (value === undefined) {
       return this;
     }
 
-    // get the type of value
-    let type = typeof value;
-
-    // if the value is a string
+    const type = typeof value;
     if (type === "string") {
-      // declare array of true and false values
       const trueValues = [true, "true", "t", "yes", "y", "on"];
-      const falseValues = [false, "false", "f", "F", "no", "n", "off"];
+      const falseValues = [false, "false", "f", "no", "n", "off"];
+      let lower = value.toLowerCase();
 
-      // convert the value to a lowercase
-      value = value.toLowerCase();
-
-      // assign true/false if value is in one of the arrays
-      if (trueValues.includes(value)) {
+      if (trueValues.includes(lower)) {
         this.#data[name] = true;
-      } else if (falseValues.includes(value)) {
+      } else if (falseValues.includes(lower)) {
         this.#data[name] = false;
       } else {
         this.#errors.push(
-          `"${name} "is ${value}" wich is not a valid "boolean" value`
+          `"${name}" is "${value}" which is not a valid boolean value`
         );
       }
-      // if value is of type number
     } else if (type === "number") {
-      // if it is the whole integer of 1 then it is true
       if (value === 1) {
         this.#data[name] = true;
       } else if (value === 0) {
-        // if it is the whole number 0 then it is false
         this.#data[name] = false;
       } else {
-        // the number is not 1 or 0 so it is invalid
         this.#errors.push(
-          `"${name} "is ${value}" wich is not a valid "boolean" value`
+          `"${name}" is "${value}" which is not a valid boolean value`
         );
       }
     } else if (type !== "boolean") {
-      // the value is not a boolean, not a string and not a number so it is invalid
       this.#errors.push(
-        `"${name} "is ${value}" wich is not a valid "boolean" value`
+        `"${name}" is "${value}" which is not a valid boolean value`
       );
     }
 
-    // allow for method chaining
     return this;
   }
 
   /**
-   * Verifies that the value is a valid date.
-   * @param {string} name - The name of the field.
-   * @param {Date} defaultValue - The default value of the field.
-   * @param {boolean} required - Whether the field is required.
-   * @returns {confirm} - The Confirm instance for method chaining.
+   * Validate or coerce a field to a Date instance.
+   * Uses MoreDate.parseDate and MoreDate.isDate internally.
+   *
+   * @param {string} name - Property name.
+   * @param {Date|string} [defaultValue] - Default value if missing.
+   * @param {boolean} [required=true] - Whether the field is required.
+   * @returns {Confirm}
    */
   isDate(name, defaultValue, required = true) {
-    // first try to get value
     let value = this._getValue(name, defaultValue, required);
 
-    // if no value and no default provided
     if (value === undefined) {
       return this;
     }
 
-    // now attempt to parse the value into a Date object
     value = MoreDate.parseDate(value);
-
-    // if able to convert to date then update data
     if (MoreDate.isDate(value)) {
       this.#data[name] = value;
     } else {
-      // add error message to array
       this.#errors.push(`"${name}" is not a valid date`);
     }
 
-    // allow method chaining
     return this;
   }
 
   /**
-   * Verifies that two values are equal.
-   * @param {string} name - The name of the field.
-   * @param {string} duplicateName - The name of the duplicate field to compare.
-   * @param {boolean} required - Whether the field is required.
-   * @returns {confirm} - The Confirm instance for method chaining.
+   * Ensure that two fields in the object match (equal values or equal dates).
+   *
+   * @param {string} name - First field name.
+   * @param {string} duplicateName - Second field name to compare.
+   * @param {boolean} [required=true] - Whether both fields must exist.
+   * @returns {Confirm}
    */
   isDuplicate(name, duplicateName, required = true) {
-    // First try to get both values
     let value1 = this._getValue(name, undefined, required);
     let value2 = this._getValue(duplicateName, undefined, required);
 
-    // Exit if either value is undefined or null (handling both cases)
     if (value1 == null || value2 == null) {
-      // `value == null` confirms both `null` and `undefined`
       this.#errors.push(
         `Both "${name}" and "${duplicateName}" values are required`
       );
       return this;
     }
 
-    // Check if both values are of type Date and compare them
     if (value1 instanceof Date && value2 instanceof Date) {
       if (!MoreDate.sameDate(value1, value2)) {
         this.#errors.push(`"${name}" and "${duplicateName}" do not match`);
@@ -175,91 +162,83 @@ class Confirm {
       return this;
     }
 
-    // Check if both values have the same primitive data type
     if (typeof value1 !== typeof value2) {
       this.#errors.push(`"${name}" and "${duplicateName}" do not match`);
-      return this; // Allow for method chaining if types don't match
+      return this;
     }
 
-    // If they are of the same primitive type, compare the values directly
     if (value1 !== value2) {
       this.#errors.push(`"${name}" and "${duplicateName}" do not match`);
     }
 
-    // Allow method chaining
     return this;
   }
 
   /**
-   * Verifies that the value is a valid email.
-   * @param {string} name - The name of the field.
-   * @param {string} defaultValue - The default value of the field.
-   * @param {boolean} required - Whether the field is required.
-   * @returns {confirm} - the Confirm instance for method chaining.
+   * Validate that the field is a valid email string.
+   *
+   * @param {string} name - Field name.
+   * @param {string} [defaultValue] - Default value if missing.
+   * @param {boolean} [required=true] - Whether the field is required.
+   * @returns {Confirm}
    */
   isEmail(name, defaultValue, required = true) {
     let value = this._getValue(name, defaultValue, required);
 
-    // if value defined and it is a string
     if (value && this._confirmType(name, value, "string")) {
-      // use regular expression to determine if email is valid
       const regex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
       if (!regex.test(value)) {
-        this.#errors.push(`"${name} is not a valid email`);
+        this.#errors.push(`"${name}" is not a valid email`);
       }
     }
 
-    // allow method chaining
     return this;
   }
 
   /**
-   * Verifies that the value is a valid enumeration.
-   * @param {string} name - The name of the field.
-   * @param {string} defaultValue - The default value of the field.
-   * @param {Array<string>} values - The valid enumeration values.
-   * @param {boolean} required - Whether the field is required.
-   * @returns {Confirm} - the Confirm instance for method chaining.
+   * Validate that the field equals one of the allowed enumeration values.
+   * Case-insensitive comparison is used.
+   *
+   * @param {string} name - Field name.
+   * @param {string} [defaultValue] - Default value if missing.
+   * @param {string[]} values - Array of allowed string values.
+   * @param {boolean} [required=true] - Whether the field must exist.
+   * @returns {Confirm}
    */
   isEnum(name, defaultValue, values, required = true) {
-    //get the value or default if necessary
     let value = this._getValue(name, defaultValue, required);
 
-    // if value defined and it is a string
     if (value && this._confirmType(name, value, "string")) {
-      // if value is not valid enumeration
-      if (!values.find((item) => item.toLowerCase() === value.toLowerCase())) {
-        this.#errors.push(`${name} is "${value}" which is not a valid value`);
+      const found = values.find(
+        item => item.toLowerCase() === value.toLowerCase()
+      );
+      if (!found) {
+        this.#errors.push(`"${name}" is "${value}" which is not a valid value`);
       }
     }
 
-    // allow method chaining
     return this;
   }
 
   /**
-   * Verifies that the value is a valid float.
-   * @param {string} name - The name of the field.
-   * @param {string} defaultValue - The default value of the field.
-   * @param {number} minFloat - The minimum allowed float value.
-   * @param {number} maxFloat - The maximum allowed float value.
-   * @param {boolean} required - Whether the field is required.
-   * @returns {Confirm} - the Confirm instance for method chaining.
+   * Validate or coerce the field to a floating-point number within optional bounds.
+   *
+   * @param {string} name - Field name.
+   * @param {string|number} [defaultValue] - Default if missing.
+   * @param {number} [minFloat] - Minimum allowed float value.
+   * @param {number} [maxFloat] - Maximum allowed float value.
+   * @param {boolean} [required=true] - Whether field must exist.
+   * @returns {Confirm}
    */
   isFloat(name, defaultValue, minFloat, maxFloat, required = true) {
-    // get value or default if one is specified
     let value = this._getValue(name, defaultValue, required);
 
-    // if value found and it is a string
     if (value && typeof value === "string") {
-      // try to parse string into floating point number
-      value = parseFloat(value);
-
-      // if conversion was successful, then update value in data object
-      if (!isNaN(value)) {
+      const parsed = parseFloat(value);
+      if (!isNaN(parsed)) {
+        value = parsed;
         this.#data[name] = value;
       } else {
-        // not a valid number so push error an return method chaining
         this.#errors.push(
           `"${name}" is "${value}" which is not a valid number`
         );
@@ -267,43 +246,36 @@ class Confirm {
       }
     }
 
-    // if value is defined an it is now a number
     if (value && this._confirmType(name, value, "number")) {
-      // ensure value is within min and max values
-      if (minFloat && minFloat > value) {
+      if (minFloat != null && value < minFloat) {
         this.#errors.push(`"${name}" cannot be less than "${minFloat}"`);
-      } else if (maxFloat && maxFloat < value) {
+      } else if (maxFloat != null && value > maxFloat) {
         this.#errors.push(`"${name}" cannot be greater than "${maxFloat}"`);
       }
     }
 
-    // allow method chaining
     return this;
   }
 
   /**
-   * Verifies that the value is an integer.
-   * @param {string} name - The name of the field.
-   * @param {string} defaultValue - The default value of the field.
-   * @param {number} minInteger - The minimum allowed integer value.
-   * @param {number} maxInteger - The maximum allowed integer value.
-   * @param {boolean} required - Whether the field is required.
-   * @returns {Confirm} - the Confirm instance for method chaining.
+   * Validate or coerce the field to an integer within optional bounds.
+   *
+   * @param {string} name - Field name.
+   * @param {string|number} [defaultValue] - Default if missing.
+   * @param {number} [minInteger] - Minimum allowed integer value.
+   * @param {number} [maxInteger] - Maximum allowed integer value.
+   * @param {boolean} [required=true] - Whether field must exist.
+   * @returns {Confirm}
    */
   isInteger(name, defaultValue, minInteger, maxInteger, required = true) {
-    // get the value or default if one is specified
     let value = this._getValue(name, defaultValue, required);
 
-    // if value found and it is a string
     if (value && typeof value === "string") {
-      // try to parse string into integer number
-      value = parseInt(value);
-
-      // if conversion was successful, then update value in data object
-      if (!isNaN(value)) {
+      const parsed = parseInt(value, 10);
+      if (!isNaN(parsed)) {
+        value = parsed;
         this.#data[name] = value;
       } else {
-        // not a valid number so push error an return method chaining
         this.#errors.push(
           `"${name}" is "${value}" which is not a valid number`
         );
@@ -311,141 +283,80 @@ class Confirm {
       }
     }
 
-    // if a number then ensure it is between min and max
     if (value && this._confirmType(name, value, "number")) {
-      if (minInteger && minInteger > value) {
+      if (minInteger != null && value < minInteger) {
         this.#errors.push(`"${name}" cannot be less than "${minInteger}"`);
-      } else if (maxInteger && maxInteger < value) {
+      } else if (maxInteger != null && value > maxInteger) {
         this.#errors.push(`"${name}" cannot be greater than "${maxInteger}"`);
       }
     }
 
-    // allow method chaining
     return this;
   }
 
   /**
-   * Verifies that the value is a valid password.
-   * @param {string} name - The name of the field.
-   * @param {Object} config - Configuration for password validation.
-   * @param {boolean} required - Whether the field is required.
-   * @returns {Confirm} - the Confirm instance for method chaining.
+   * Validate a password field based on the provided or default configuration.
+   *
+   * @param {string} name - Field name containing the password.
+   * @param {Object} [config={}] - Partial configuration overriding defaults.
+   * @param {boolean} [required=true] - Whether the password field is required.
+   * @returns {Confirm}
    */
   isPassword(name, config = {}, required = true) {
-    // get value
     let value = this._getValue(name, undefined, required);
-
-    // assume an invalid password
     let ok = false;
 
-    // if value found and it is a string
     if (value && this._confirmType(name, value, "string")) {
-      // merge the default password configuration with those passed to method
-      const mergedConfig = { ...defaultPasswordConfig, ...config };
-
-      // count types of characters
+      const merged = { ...defaultPasswordConfig, ...config };
       const counts = countCharacters(value);
 
-      // ensure length is within bounds and each character type meets minimum requirements
       ok =
-        value.length >= mergedConfig.minLength &&
-        value.length <= mergedConfig.maxLength &&
-        counts.upper >= mergedConfig.minUpper &&
-        counts.lower >= mergedConfig.minLower &&
-        counts.digits >= mergedConfig.minDigits &&
-        counts.symbols >= mergedConfig.minSymbols;
+        value.length >= merged.minLength &&
+        value.length <= merged.maxLength &&
+        counts.upper >= merged.minUpper &&
+        counts.lower >= merged.minLower &&
+        counts.digits >= merged.minDigits &&
+        counts.symbols >= merged.minSymbols;
     }
 
-    // if password does not meet requirements
     if (!ok) {
       this.#errors.push(`"${name}" is not a valid password value`);
     }
 
-    // allow method chaining
     return this;
   }
 
   /**
-   * Verifies that the value matches a given regular expression.
-   * @param {string} name - The name of the field.
-   * @param {string} defaultValue - The default value of the field.
+   * Validate that a string field matches a given regular expression.
+   *
+   * @param {string} name - Field name.
+   * @param {string} [defaultValue] - Default if missing.
    * @param {RegExp} regEx - The regular expression to test against.
-   * @param {boolean} required - Whether the field is required.
-   * @returns {Confirm} - the Confirm instance for method chaining.
+   * @param {boolean} [required=true] - Whether the field is required.
+   * @returns {Confirm}
    */
   isRegEx(name, defaultValue, regEx, required = true) {
-    console.debug("isRegEx", name);
-    // get the value or default if no value present in data
     let value = this._getValue(name, defaultValue, required);
-    console.debug("isRegEx", value);
 
-    // if value exists and it is a string value
     if (value && this._confirmType(name, value, "string")) {
-      // if value does not match regular expression
       if (!regEx.test(value)) {
         this.#errors.push(`"${name}" is "${value}" which is not a valid value`);
       }
     }
 
-    // allow method chaining
     return this;
   }
 
   /**
-   * Verifies that the value is a valid string with optional length and capitalization constraints.
-   * @param {string} name - The name of the field.
-   * @param {string} defaultValue - The default value of the field.
-   * @param {number} minLength - The minimum length of the string.
-   * @param {number} maxLength - The maximum length of the string.
-   * @param {string} capitalization - The capitalization rule (e.g., "upper", "lower", "title", "first").
-   * @param {boolean} required - Whether the field is required.
-   * @returns {Confirm} - the Confirm instance for method chaining.
+   * Placeholder for time-based validation (not implemented).
+   *
+   * @param {string} name
+   * @param {any} defaultValue
+   * @param {any} minTime
+   * @param {any} maxTime
+   * @param {boolean} required
+   * @returns {Confirm}
    */
-  isString(
-    name,
-    defaultValue,
-    minLength,
-    maxLength,
-    capitalization = undefined,
-    required = true
-  ) {
-    // get value or default if no value specified
-    let value = this._getValue(name, defaultValue, required);
-
-    // if value present and value is a strring
-    if (value && this._confirmType(name, value, "string")) {
-      // ensure length of value is within min and max lengths
-      let len = value.length;
-      if (minLength && minLength > len) {
-        this.#errors.push(`"${name}" must be at least ${minLength} characters`);
-      } else if (maxLength && maxLength < len) {
-        this.#errors.push(
-          `"${name}" must be no more than ${maxLength} characters`
-        );
-      }
-
-      // if a form of capitalization  was specified then convert value
-      if (capitalization) {
-        if (capitalization === "upper") {
-          this.#data[name] = value.toUpperCase();
-        } else if (capitalization === "lower") {
-          this.#data[name] = value.toLowerCase();
-        } else if (capitalization === "title") {
-          this.#data[name] = titleCase(value);
-        } else if (capitalization === "first") {
-          this.#data[name] = firstCase(value);
-        } else {
-          throw new Error(
-            `"${name}" cannot be converted to "${capitalization}" because it is not a valid form of capitalization`
-          );
-        }
-      }
-    }
-
-    // allow for method chaining
-    return this;
-  }
-
   isTime(
     name,
     defaultValue,
@@ -453,56 +364,57 @@ class Confirm {
     maxTime = undefined,
     required = true
   ) {
-    this.#errors.push(`"isTimestamp" is not implemented! ({${name})`);
+    this.#errors.push(`"isTime" is not implemented! (${name})`);
     return this;
   }
 
   /**
-   * Returns an array of error messages.
-   * @returns {Array<string>} - The list of error messages.
+   * Get all validation error messages.
+   *
+   * @returns {string[]} - Array of error messages. Empty if none.
    */
   get errors() {
     return this.#errors;
   }
 
   /**
-   * Checks if the data type of the value is as expected.
-   * @param {string} name - The name of the field.
-   * @param {*} value - The value to confirm.
-   * @param {string} expectedType - The expected type.
-   * @returns {boolean} - True if the types match, false otherwise.
+   * Confirm that a field is of the expected JS type.
+   *
+   * @private
+   * @param {string} name - Field name.
+   * @param {any} value - Value to check.
+   * @param {string} expectedType - Expected `typeof` result.
+   * @returns {boolean} - True if type matches; false (and pushes an error) otherwise.
    */
   _confirmType(name, value, expectedType) {
-    let actualType = typeof value;
-    let same = expectedType === actualType;
+    const actual = typeof value;
+    const same = actual === expectedType;
     if (!same) {
       this.#errors.push(
-        `"${name}" is of type "${actualType}" but should be of type "${expectedType}"`
+        `"${name}" is of type "${actual}" but should be of type "${expectedType}"`
       );
     }
-
     return same;
   }
 
   /**
-   * Returns the value of the field or a default value if it doesn't exist.
-   * @param {string} name - The name of the field.
-   * @param {*} defaultValue - The default value to return if the field is missing.
-   * @param {boolean} required - Whether the field is required.
-   * @returns {*} - The field value or the default value.
+   * Get the value for a property, apply a default if undefined, and enforce requiredness.
+   *
+   * @private
+   * @param {string} name - Field name.
+   * @param {any} defaultValue - Default to set and return if missing.
+   * @param {boolean} required - Whether the field must be present.
+   * @returns {any} - The resolved value (could be undefined).
    */
   _getValue(name, defaultValue, required) {
     let value = this.#data[name];
 
-    // if the value is undefined
     if (value === undefined) {
-      // if there is a default value then assign it to internal data object and value being returned
-      if (defaultValue) {
+      if (defaultValue !== undefined) {
         this.#data[name] = defaultValue;
         value = defaultValue;
       } else if (required) {
-        // value is required and it was not provided
-        this.#errors.push(`"${name} field is required.`);
+        this.#errors.push(`"${name}" field is required.`);
       }
     }
 
